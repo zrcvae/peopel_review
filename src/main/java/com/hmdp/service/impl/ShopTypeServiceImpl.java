@@ -24,8 +24,8 @@ import static com.hmdp.utils.RedisConstants.LOCK_SHOP_KEY;
  *  服务实现类
  * </p>
  *
- * @author 虎哥
- * @since 2021-12-22
+ * @author zrc
+ *
  */
 @Service
 public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> implements IShopTypeService {
