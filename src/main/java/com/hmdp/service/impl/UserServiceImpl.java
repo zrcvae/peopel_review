@@ -51,6 +51,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String code = RandomUtil.randomNumbers(6);
         // 3、保存验证码到session
         // session.setAttribute("code", code);
+
         // 应该存储到redis中，同时设置有效时间2分钟
         redisTemplate.opsForValue().set(LOGIN_CODE_KEY + phone, code, LOGIN_CODE_TTL, TimeUnit.MINUTES);
         // 4、发送请求(这里使用注解方式显示code)
@@ -86,10 +87,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 4、将用户信息保存到session(存入有用数据减少session压力)
         //session.setAttribute("user", BeanUtil.copyProperties(user, UserDTO.class));
-        // 现在需要将用户信息保存到redis中，使用随机生成的token作为key
 
+        // 现在需要将用户信息保存到redis中，使用随机生成的token作为key
         String token = UUID.randomUUID().toString(true);
         String tokenKey = LOGIN_USER_KEY + token;
+        // 将user类型转为userDto类型
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         Map<String, Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(),
                 CopyOptions.create().setIgnoreNullValue(true)
