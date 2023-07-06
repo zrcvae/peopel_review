@@ -4,11 +4,11 @@ package com.hmdp.controller;
 import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.Result;
 import com.hmdp.dto.UserDTO;
-import com.hmdp.entity.User;
 import com.hmdp.entity.UserInfo;
 import com.hmdp.service.IUserInfoService;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.UserHolder;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +46,7 @@ public class UserController {
      * 登录功能
      * @param loginForm 登录参数，包含手机号、验证码；或者手机号、密码
      */
+    @ApiOperation("登录接口")
     @PostMapping("/login")
     public Result login(@RequestBody LoginFormDTO loginForm, HttpSession session){
         // TODO 实现登录功能
