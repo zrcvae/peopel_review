@@ -10,6 +10,7 @@ public class RedisConstants {
     // 用户信息的有效期，和设置session有效期一样
     public static final Long LOGIN_USER_TTL = 36000L;
 
+    // 缓存击穿，设置的失效时间
     public static final Long CACHE_NULL_TTL = 2L;
 
     public static final String CACHE_SHOP_KEY = "cache:shop:";
@@ -17,8 +18,9 @@ public class RedisConstants {
     public static final Long CACHE_SHOP_TTL = 30L;
     public static final String CACHE_SHOP_TYPE_KEY = "cache:shop:typekey";
 
-
+    // 互斥锁key
     public static final String LOCK_SHOP_KEY = "lock:shop:";
+    // 设置缓存穿透互斥锁的时间
     public static final Long LOCK_SHOP_TTL = 10L;
 
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
