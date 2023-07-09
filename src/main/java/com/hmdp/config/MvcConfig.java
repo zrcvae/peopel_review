@@ -25,7 +25,11 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/code",
                         "/user/login",
                         "/swagger-resources/**",
-                        "/swagger-ui.html/**"
+                        "/swagger-ui.html/**",
+                        "/v2/**",
+                        "/swagger-resources/configuration/ui",
+                        "/swagger-ui.html",
+                        "/webjars/**"
                 ).order(1);
         // order(0)，让这个拦截器先执行
         // 这个是token刷新拦截器
