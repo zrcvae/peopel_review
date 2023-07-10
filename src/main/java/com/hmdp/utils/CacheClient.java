@@ -42,10 +42,12 @@ public class CacheClient {
         this.redisTemplate = redisTemplate;
     }
 
+    // 将任意java对象序列化为json并储存在String类型key中，设置TTL过期时间
     public void set(String key, Object value, Long time, TimeUnit unit){
         redisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(value), time, unit);
     }
 
+    // 将任意java对象序列化为json并储存在String类型key中，设置逻辑过期时间，同于处理缓存击穿
     public void setLogicalExpire(String key, Object value, Long time, TimeUnit unit){
         RedisData redisData = new RedisData();
         redisData.setData(value);
@@ -53,6 +55,7 @@ public class CacheClient {
         redisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(redisData));
     }
 
+    // 根据指定的key查询缓存，反序列化指定类型，利用缓存控制解决缓存穿透问题
     public <R, ID> R queryPassThrough(String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit){
         // 从redis中根据id查询商铺信息
         String key = keyPrefix + id;
@@ -78,6 +81,7 @@ public class CacheClient {
         return r;
     }
 
+    // 根据指定key查询缓存，反序列化指定类型，利用逻辑过期解决缓存击穿问题
     public <R, ID> R queryLogicalExpire(String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit unit){
         // 从redis中根据id查询商铺信息
         String key = keyPrefix + id;
