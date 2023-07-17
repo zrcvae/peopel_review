@@ -11,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 /**
  * @author zrc
  * @date 2023/07/11
+ * 每天一个key，可以方便统计每天的订单量
+ * 构造方式；时间戳 + 计数器
  * 还可以尝试采用雪花算法写ID
  */
 @Component
