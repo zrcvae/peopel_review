@@ -8,9 +8,11 @@ import com.hmdp.mapper.VoucherOrderMapper;
 import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IVoucherOrderService;
 import com.hmdp.utils.RedisID;
+import com.hmdp.utils.SimpleRedisLock;
 import com.hmdp.utils.UserHolder;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,8 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     private ISeckillVoucherService voucherService;
     @Autowired
     private RedisID redisID;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public Result seckillVoucher(Long voucherId) {
@@ -47,16 +51,32 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         if (voucher.getStock() < 1) {
             return Result.fail("优惠券以售完");
         }
-        // 使用悲观锁，对用户的id加锁，保证每个用户只能购买一次优惠券
-        // 如果仅仅是在方法中对用户id进行加锁，会导致数据没有进入数据库，锁已经释放，依然存在安全问题
-        // 因此需要将锁加在方法上，保证事务提交后再释放锁
         Long userId = UserHolder.getUser().getId();
-        synchronized (userId.toString().intern()) {
-            // 这里如果直接使用createVoucherorder(voucherId);会出现spring代理失效
-            // 导致@Transactional不起作用,需要获取代理对象
+        SimpleRedisLock lock = new SimpleRedisLock("order" + userId, redisTemplate);
+        boolean tryLock = lock.tryLock(5);
+        if (!tryLock){
+            return Result.fail("不可重复购买");
+        }
+        try {
             IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
             return proxy.createVoucherorder(voucherId);
+        }finally {
+            // 释放锁
+            lock.unlock();
         }
+
+        /**
+         * 使用悲观锁，对用户的id加锁，保证每个用户只能购买一次优惠券
+         * 如果仅仅是在方法中对用户id进行加锁，会导致数据没有进入数据库，锁已经释放，依然存在安全问题
+         * 因此需要将锁加在方法上，保证事务提交后再释放锁
+         * 这里代码注释，因为要使用分布式锁结构，解决集群中的多进程互斥
+         */
+//        synchronized (userId.toString().intern()) {
+//            // 这里如果直接使用createVoucherorder(voucherId);会出现spring代理失效
+//            // 导致@Transactional不起作用,需要获取代理对象
+//            IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
+//            return proxy.createVoucherorder(voucherId);
+//        }
     }
     @Transactional
     public Result createVoucherorder(Long voucherId) {
