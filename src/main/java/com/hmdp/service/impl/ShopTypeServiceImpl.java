@@ -1,23 +1,20 @@
 package com.hmdp.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.dto.Result;
 import com.hmdp.entity.ShopType;
 import com.hmdp.mapper.ShopTypeMapper;
 import com.hmdp.service.IShopTypeService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static com.hmdp.utils.RedisConstants.CACHE_SHOP_TYPE_KEY;
-import static com.hmdp.utils.RedisConstants.LOCK_SHOP_KEY;
 
 /**
  * <p>
@@ -46,7 +43,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> i
             }
             return Result.ok(typeList);
         }
-        // 如果没有从数据库中查询，如果查询到，存入redis中并返回，如果没有返回错误信息
+        // 如果Redis中没有，从数据库中查询，如果查询到，存入redis中并返回，如果没有返回错误信息
         List<ShopType> typeList = query().orderByAsc("sort").list();
         if (typeList == null){
             return Result.fail("错误！");

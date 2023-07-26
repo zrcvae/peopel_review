@@ -41,6 +41,7 @@ public class Blog implements Serializable {
     private Long userId;
     /**
      * 用户图标
+     * exit = false 表示该字段不属于tb_blog表
      */
     @TableField(exist = false)
     private String icon;
